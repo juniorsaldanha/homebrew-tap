@@ -14,18 +14,20 @@ cask "nextion-editor" do
   depends_on cask: "wine-stable"
   depends_on formula: "winetricks"
   # ---------------------------------------------------------------------------
-  # A dedicated 32-bit Wine prefix under Application Support, so we never touch
-  # the user's default ~/.wine. NOTE: the "Wine Stable.app" bin path below is
-  # where the CLI lives for the current wine-stable cask — verify it on your
-  # machine (ls "/Applications/Wine Stable.app/Contents/Resources/wine/bin")
-  # and adjust if the layout differs in your Wine version.
+  # A dedicated Wine prefix under Application Support, so we never touch the
+  # user's default ~/.wine. wine-stable ships a wow64-only build (no separate
+  # win32 arch), so we use the default 64-bit prefix — it runs this 32-bit
+  # .NET installer fine via Wine's built-in WoW64 layer. NOTE: the
+  # "Wine Stable.app" bin path below is where the CLI lives for the current
+  # wine-stable cask — verify it on your machine
+  # (ls "/Applications/Wine Stable.app/Contents/Resources/wine/bin") and
+  # adjust if the layout differs in your Wine version.
   # ---------------------------------------------------------------------------
   bootstrap = <<~SH
     #!/usr/bin/env bash
     set -euo pipefail
 
     export WINEPREFIX="$HOME/Library/Application Support/nextion-editor/wineprefix"
-    export WINEARCH=win32
     export WINEDLLOVERRIDES="mscoree="   # skip the Mono prompt; we install real .NET 3.5
     export PATH="/Applications/Wine Stable.app/Contents/Resources/wine/bin:$PATH"
 
@@ -45,7 +47,6 @@ cask "nextion-editor" do
   launcher = <<~SH
     #!/usr/bin/env bash
     export WINEPREFIX="$HOME/Library/Application Support/nextion-editor/wineprefix"
-    export WINEARCH=win32
     export PATH="/Applications/Wine Stable.app/Contents/Resources/wine/bin:$PATH"
     exec wine "$WINEPREFIX/drive_c/Program Files/Nextion Editor/Nextion Editor.exe"
   SH
