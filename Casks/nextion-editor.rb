@@ -28,20 +28,74 @@ cask "nextion-editor" do
     set -euo pipefail
 
     export WINEPREFIX="$HOME/Library/Application Support/nextion-editor/wineprefix"
-    export WINEDLLOVERRIDES="mscoree="   # skip the Mono prompt; we install real .NET 3.5
     export PATH="/Applications/Wine Stable.app/Contents/Resources/wine/bin:$PATH"
 
     mkdir -p "$WINEPREFIX"
     wineboot --init
     wineserver -w
 
-    # The runtime Nextion Editor requires.
-    winetricks -q dotnet35
+    # The runtime Nextion Editor requires. Needs mscoree.dll (the real CLR)
+    # available, so don't set WINEDLLOVERRIDES=mscoree= until after this.
+    #
+    # RegSvcs.exe (COM+ component registration, part of dotnet35's
+    # post-install) spins at 100% CPU forever under Wine's incomplete DCOM
+    # support. By the time it starts, the framework itself is already
+    # installed in the GAC -- all a desktop WinForms app like this needs --
+    # so watch for it and kill it after a few minutes rather than hang.
+    winetricks -q dotnet35 &
+    tricks_pid=$!
+    regsvcs_since=0
+    while kill -0 "$tricks_pid" 2>/dev/null; do
+      if pgrep -f RegSvcs.exe >/dev/null; then
+        [ "$regsvcs_since" -eq 0 ] && regsvcs_since=$SECONDS
+        if [ $((SECONDS - regsvcs_since)) -gt 180 ]; then
+          pkill -9 -f RegSvcs.exe
+          break
+        fi
+      else
+        regsvcs_since=0
+      fi
+      sleep 5
+    done
+    wait "$tricks_pid" 2>/dev/null || true
+    wineserver -w
 
     # Run the (MSI-based) installer. Silent flags are unreliable for this
     # bootstrapper, so it runs interactively — click through the wizard once,
     # keeping the default install path (C:\\Program Files\\Nextion Editor).
-    wine "$INSTALLER_EXE"
+    # mscoree= skips the Mono-install prompt Wine shows for .NET apps, now
+    # that real .NET 3.5 is in place.
+    #
+    # Like RegSvcs.exe above, the installer can spin at 100% CPU forever on
+    # Wine's incomplete DCOM/RPC support -- watch for that and retry a few
+    # times (with a fresh wineserver) before giving up.
+    run_installer() {
+      WINEDLLOVERRIDES="mscoree=" wine "$INSTALLER_EXE" &
+      local pid=$!
+      local waited=0
+      while kill -0 "$pid" 2>/dev/null; do
+        if [ "$waited" -ge 300 ]; then
+          pkill -9 -f "$(basename "$INSTALLER_EXE")"
+          wait "$pid" 2>/dev/null || true
+          return 1
+        fi
+        sleep 5
+        waited=$((waited + 5))
+      done
+      wait "$pid"
+    }
+
+    attempt=1
+    until run_installer; do
+      if [ "$attempt" -ge 3 ]; then
+        echo "Nextion installer hung 3 times in a row under Wine -- giving up." \
+             "This is Wine's DCOM/RPC support, not this script." >&2
+        exit 1
+      fi
+      attempt=$((attempt + 1))
+      wineserver -k || true
+      wineserver -w
+    done
   SH
 
   launcher = <<~SH
@@ -87,8 +141,8 @@ cask "nextion-editor" do
     File.write "#{res}/Info.plist", plist
 
     # Bake the resolved installer path into the bootstrap script.
-    script = bootstrap.sub("$INSTALLER_EXE",
-                           "#{staged_path}/nextion-setup-v#{version.dots_to_hyphens}.exe")
+    script = bootstrap.gsub("$INSTALLER_EXE",
+                            "#{staged_path}/nextion-setup-v#{version.dots_to_hyphens}.exe")
     File.write "#{staged_path}/bootstrap.sh", script
     FileUtils.chmod 0755, "#{staged_path}/bootstrap.sh"
   end
