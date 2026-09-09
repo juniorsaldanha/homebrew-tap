@@ -4,21 +4,21 @@ cask "hexplore" do
 
   on_macos do
     on_arm do
-      sha256 "24729fbf859401cfa90c3df61d3dbf7e7845dcde42ffbe202da47386f84efb0b"
+      sha256 "91a60447c8c3688bccaa846e532a316a29968ca34393e9d0da98c9504b8e49bc"
       url "https://github.com/juniorsaldanha/hexplore/releases/download/v#{version}/hexplore_darwin_arm64.tar.gz"
     end
     on_intel do
-      sha256 "a72e5237eb1efab37f00fe9cef972ea947ac21e753e58bfb6bb344b293d77c9e"
+      sha256 "cc7c9c3947ae2f7eaa8401fe6881ce77b6141b2fa500950787f04376978bd20e"
       url "https://github.com/juniorsaldanha/hexplore/releases/download/v#{version}/hexplore_darwin_amd64.tar.gz"
     end
   end
   on_linux do
     on_arm do
-      sha256 "eccab221636b1b07107438a086ebf31478857e25c0331e19ef2a471fdc019c6f"
+      sha256 "af91fa619643bd1e5f3ffa1001bdd0907f1345888dd1436c0ae8cd46f91b8d4e"
       url "https://github.com/juniorsaldanha/hexplore/releases/download/v#{version}/hexplore_linux_arm64.tar.gz"
     end
     on_intel do
-      sha256 "31a77d9cfb97aa9c8d837131da742f58700316fedc793b97e33e974aec08f270"
+      sha256 "3617fcff272976e2fd4f69c18a44a88f8fa4fcc24520d14397f001cc5c1565ae"
       url "https://github.com/juniorsaldanha/hexplore/releases/download/v#{version}/hexplore_linux_amd64.tar.gz"
     end
   end
@@ -33,5 +33,17 @@ cask "hexplore" do
 
   binary "hexplore"
 
+  postflight do
+    system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/hexplore"]
+  end
+
   # No zap stanza required
+
+  caveats <<~EOS
+    hexplore isn't code-signed (no paid Apple Developer account behind
+    this tap yet), so this cask clears the Gatekeeper quarantine bit on
+    install. If you ever see "Apple could not verify hexplore is free of
+    malware", run:
+      xattr -d com.apple.quarantine $(which hexplore)
+  EOS
 end
