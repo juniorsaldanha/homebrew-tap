@@ -4,21 +4,21 @@ cask "hexplore" do
 
   on_macos do
     on_arm do
-      sha256 "724f45cede891df9a4cec17aec7e9fbf8d94fce7bb89bf1efdffe31b0759a7fc"
+      sha256 "24729fbf859401cfa90c3df61d3dbf7e7845dcde42ffbe202da47386f84efb0b"
       url "https://github.com/juniorsaldanha/hexplore/releases/download/v#{version}/hexplore_darwin_arm64.tar.gz"
     end
     on_intel do
-      sha256 "c571cd72437277268494ebbd19eac40900003c57e291445c63e866f27d39a3e4"
+      sha256 "a72e5237eb1efab37f00fe9cef972ea947ac21e753e58bfb6bb344b293d77c9e"
       url "https://github.com/juniorsaldanha/hexplore/releases/download/v#{version}/hexplore_darwin_amd64.tar.gz"
     end
   end
   on_linux do
     on_arm do
-      sha256 "dd2e280a3c89459be97c167d42656dc05ccdcebaea7dd1fefe8bc0139b6e3a38"
+      sha256 "eccab221636b1b07107438a086ebf31478857e25c0331e19ef2a471fdc019c6f"
       url "https://github.com/juniorsaldanha/hexplore/releases/download/v#{version}/hexplore_linux_arm64.tar.gz"
     end
     on_intel do
-      sha256 "e4edf0326cad82e4a299b0fc5955562e0355adf7613d3ff69176e9c2417a1e9c"
+      sha256 "31a77d9cfb97aa9c8d837131da742f58700316fedc793b97e33e974aec08f270"
       url "https://github.com/juniorsaldanha/hexplore/releases/download/v#{version}/hexplore_linux_amd64.tar.gz"
     end
   end
