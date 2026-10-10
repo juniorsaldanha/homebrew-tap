@@ -17,5 +17,8 @@ cask "visionft" do
 
   app "VisionFT.app"
 
-  # ponytail: no zap stanza, app's support paths not verified; add after a real install.
+  zap trash: [
+    "~/Library/Application Support/FuelTech/FuelTech Vision",
+    "~/Library/Caches/FuelTech/FuelTech Vision",
+  ]
 end
