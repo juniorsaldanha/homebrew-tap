@@ -1,5 +1,5 @@
 cask "visionft" do
-  version "00.03.00.01"
+  version "03.00.01"
   sha256 :no_check
 
   url "https://files.fueltech.com.br/visionft/visionft_mac.dmg"
@@ -8,8 +8,10 @@ cask "visionft" do
   homepage "https://www.fueltech.com.br/pages/software"
 
   livecheck do
-    url :homepage
-    regex(/visionft_mac\.dmg.*?Vers[ãa]o:\s*(\d+(?:\.\d+)+)/im)
+    url :url
+    strategy :extract_plist do |items|
+      items["br.com.fueltech.visionft"]&.short_version
+    end
   end
 
   depends_on arch: :arm64
