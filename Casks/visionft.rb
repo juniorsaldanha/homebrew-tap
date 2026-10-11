@@ -5,7 +5,7 @@ cask "visionft" do
   url "https://files.fueltech.com.br/visionft/visionft_mac.dmg"
   name "FuelTech Vision"
   desc "Configuration and datalogger software for FuelTech FT470/FT700 ECUs"
-  homepage "https://www.fueltech.com.br/pages/software"
+  homepage "https://www.fueltech.net/pages/software"
 
   livecheck do
     url :url
