@@ -1,6 +1,6 @@
 cask "pico-key-manager" do
-  version "0.1.0"
-  sha256 "d5686a355c75f3d2c257a21f5ba993dcbab468752ff8aa84055b115766cfbbf0"
+  version "0.2.0"
+  sha256 "a6dbf8063f62c47ced56a45e61f68c6bbdc163e7bc84ec52809f664dc6054887"
 
   url "https://github.com/juniorsaldanha/picokeys-app/releases/download/v#{version}/Pico.Key.Manager_#{version}_universal.dmg"
   name "Pico Key Manager"
